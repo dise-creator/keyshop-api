@@ -1,0 +1,94 @@
+import { Router } from 'express';
+import prisma from '../lib/prisma';
+import { calculatePrice } from '../services/pricing';
+
+const router = Router();
+
+// Создать заказ
+router.post('/', async (req, res, next) => {
+  try {
+    const { userId, productId } = req.body;
+
+    if (!userId || !productId) {
+      res.status(400).json({ error: 'userId and productId are required' });
+      return;
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      include: { region: true }
+    });
+
+    if (!product) {
+      res.status(404).json({ error: 'Product not found' });
+      return;
+    }
+
+    const currency = await prisma.currency.findUnique({
+      where: { code: product.region.currency }
+    });
+
+    if (!currency) {
+      res.status(400).json({ error: 'Currency rate not found' });
+      return;
+    }
+
+    const amountRub = calculatePrice(product.amount, currency.rate, currency.markup);
+
+    const order = await prisma.order.create({
+      data: {
+        userId,
+        productId,
+        amountRub,
+        rate: currency.rate,
+        markup: currency.markup,
+        status: 'pending'
+      }
+    });
+
+    res.status(201).json(order);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Получить заказы пользователя
+router.get('/user/:userId', async (req, res, next) => {
+  try {
+    const orders = await prisma.order.findMany({
+      where: { userId: req.params.userId },
+      include: {
+        product: {
+          include: { platform: true, region: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(orders);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Получить один заказ
+router.get('/:id', async (req, res, next) => {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: req.params.id },
+      include: {
+        product: {
+          include: { platform: true, region: true }
+        }
+      }
+    });
+    if (!order) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+    res.json(order);
+  } catch (err) {
+    next(err);
+  }
+});
+
+export { router as ordersRouter };

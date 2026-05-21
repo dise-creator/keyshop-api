@@ -12,3 +12,8 @@ export async function getProducts(platformId?: string, regionId?: string) {
   const res = await fetch(`${BASE}/products?${params}`);
   return res.json();
 }
+
+export async function getPlatformBySlug(slug: string) {
+  const res = await fetch(`${BASE}/platforms/${slug}`);
+  return res.json();
+}

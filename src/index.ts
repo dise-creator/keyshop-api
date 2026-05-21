@@ -9,7 +9,10 @@ import { errorHandler } from "./middleware/errorHandler";
 import authRouter from "./routes/auth";
 import { fetchAndUpdateCbrRates } from "./services/currency";
 
-dotenv.config();
+dotenv.config(); // сначала dotenv
+console.log("TOKEN:", process.env.TELEGRAM_BOT_TOKEN?.slice(0, 10));
+
+import { initBot } from "./bot/admin"; // потом бот — динамический импорт
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,20 +37,23 @@ app.listen(PORT, async () => {
   try {
     await fetchAndUpdateCbrRates();
   } catch (err) {
-    console.error('Ошибка обновления курсов ЦБ:', err);
+    console.error("Ошибка обновления курсов ЦБ:", err);
   }
+  initBot();
+  cron.schedule(
+    "0 10 * * *",
+    async () => {
+      console.log("Крон: обновляем курсы ЦБ...");
+      try {
+        await fetchAndUpdateCbrRates();
+      } catch (err) {
+        console.error("Крон: ошибка обновления курсов:", err);
+      }
+    },
+    {
+      timezone: "Europe/Moscow",
+    },
+  );
 
-  // Каждый день в 10:00 по московскому времени
-  cron.schedule('0 10 * * *', async () => {
-    console.log('Крон: обновляем курсы ЦБ...');
-    try {
-      await fetchAndUpdateCbrRates();
-    } catch (err) {
-      console.error('Крон: ошибка обновления курсов:', err);
-    }
-  }, {
-    timezone: 'Europe/Moscow'
-  });
-
-  console.log('Крон запущен: курсы обновляются каждый день в 10:00 МСК');
+  console.log("Крон запущен: курсы обновляются каждый день в 10:00 МСК");
 });

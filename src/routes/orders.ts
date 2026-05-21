@@ -2,6 +2,8 @@ import { Router } from "express";
 import prisma from "../lib/prisma";
 import { calculatePrice } from "../services/pricing";
 import { authMiddleware, AuthRequest } from "../middleware/authMiddleware";
+import bcrypt from "bcrypt";
+
 
 const router = Router();
 
@@ -97,4 +99,62 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+router.post("/guest", async (req, res, next) => {
+  try {
+    const { email, productId } = req.body;
+
+    if (!email || !productId) {
+      res.status(400).json({ error: "email and productId are required" });
+      return;
+    }
+
+    // Находим или создаём пользователя
+    let user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      const password = await bcrypt.hash(Math.random().toString(36), 10);
+      user = await prisma.user.create({
+        data: { email, password, role: "user" },
+      });
+    }
+
+    // Создаём заказ
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      include: { region: true },
+    });
+
+    if (!product) {
+      res.status(404).json({ error: "Product not found" });
+      return;
+    }
+
+    const currency = await prisma.currency.findUnique({
+      where: { code: product.region.currency },
+    });
+
+    if (!currency) {
+      res.status(400).json({ error: "Currency rate not found" });
+      return;
+    }
+
+    const amountRub = calculatePrice(product.amount, currency.rate, currency.markup);
+
+    const order = await prisma.order.create({
+      data: {
+        userId: user.id,
+        productId,
+        amountRub,
+        rate: currency.rate,
+        markup: currency.markup,
+        status: "pending",
+      },
+    });
+
+    res.status(201).json({ order, userId: user.id });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export { router as ordersRouter };
+

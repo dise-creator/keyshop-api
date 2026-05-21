@@ -16,11 +16,17 @@ router.get('/', async (req, res, next) => {
 });
 
 // Получить платформу по slug
+// Получить платформу по slug
 router.get('/:slug', async (req, res, next) => {
   try {
     const platform = await prisma.platform.findUnique({
       where: { slug: req.params.slug },
-      include: { products: true }
+      include: {
+        products: {
+          where: { isActive: true },
+          include: { region: true }
+        }
+      }
     });
     if (!platform) {
       res.status(404).json({ error: 'Platform not found' });

@@ -5,15 +5,7 @@ export async function getPlatforms() {
   return res.json();
 }
 
-export async function getProducts(platformId?: string, regionId?: string) {
-  const params = new URLSearchParams();
-  if (platformId) params.append("platformId", platformId);
-  if (regionId) params.append("regionId", regionId);
-  const res = await fetch(`${BASE}/products?${params}`);
-  return res.json();
-}
-
-export async function getPlatformBySlug(slug: string) {
-  const res = await fetch(`${BASE}/platforms/${slug}`);
+export async function getAllProducts() {
+  const res = await fetch(`${BASE}/products`);
   return res.json();
 }

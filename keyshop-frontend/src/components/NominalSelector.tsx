@@ -4,6 +4,7 @@ interface Product {
   amount: number;
   priceRub: number;
   isPopular: boolean;
+  region: { id: string; code: string; name: string; flag: string; currency: string };
 }
 
 interface NominalSelectorProps {
@@ -23,14 +24,14 @@ export default function NominalSelector({ products, activeRegion, activeNominal,
         {filtered.map((p) => (
           <button
             key={p.id}
-            onClick={() => onNominalChange(p.id, p.priceRub, `${p.amount}`)}
+            onClick={() => onNominalChange(p.id, p.priceRub, `${p.amount} ${p.region.currency}`)}
             style={{
               ...styles.card,
               ...(activeNominal === p.id ? styles.cardActive : {}),
             }}
           >
             {p.isPopular && <p style={styles.hit}>Хит</p>}
-            <p style={styles.amount}>{p.amount}</p>
+            <p style={styles.amount}>{p.amount} {p.region.currency}</p>
             <p style={styles.price}>{Math.round(p.priceRub).toLocaleString("ru-RU")} ₽</p>
             {activeNominal === p.id && <span style={styles.dot} />}
           </button>

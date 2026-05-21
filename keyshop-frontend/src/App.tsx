@@ -4,40 +4,60 @@ import RegionSelector from "./components/RegionSelector";
 import NominalSelector from "./components/NominalSelector";
 import Checkout from "./components/Checkout";
 import Footer from "./components/Footer";
-import { getPlatforms, getPlatformBySlug } from "./api";
+import { getPlatforms, getAllProducts } from "./api";
+
+interface Product {
+  id: string;
+  platformId: string;
+  regionId: string;
+  amount: number;
+  priceRub: number;
+  isPopular: boolean;
+  region: { id: string; code: string; name: string; flag: string; currency: string };
+  platform: { id: string; slug: string; name: string };
+}
 
 export default function App() {
   const [platforms, setPlatforms] = useState<{ id: string; slug: string; name: string }[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [activePlatform, setActivePlatform] = useState("");
-  const [regions, setRegions] = useState<{ id: string; code: string; name: string; flag: string }[]>([]);
-  const [products, setProducts] = useState<{ id: string; regionId: string; amount: number; priceRub: number; isPopular: boolean }[]>([]);
   const [activeRegion, setActiveRegion] = useState("");
   const [activeNominal, setActiveNominal] = useState("");
   const [selectedPrice, setSelectedPrice] = useState(0);
   const [selectedLabel, setSelectedLabel] = useState("");
 
-  // Загружаем платформы при старте
   useEffect(() => {
     getPlatforms().then((data) => {
       setPlatforms(data);
-      if (data.length > 0) loadPlatformData(data[0].slug);
+      if (data.length > 0) setActivePlatform(data[0].slug);
     });
+    getAllProducts().then(setAllProducts);
   }, []);
 
-  // Загружаем регионы и продукты при смене платформы
-  function loadPlatformData(slug: string) {
+  // Регионы для активной платформы
+  const regions = Object.values(
+    allProducts
+      .filter((p) => p.platform.slug === activePlatform)
+      .reduce((acc, p) => {
+        acc[p.region.id] = p.region;
+        return acc;
+      }, {} as Record<string, Product["region"]>)
+  );
+
+  // При смене платформы — выбираем первый регион
+  useEffect(() => {
+    if (regions.length > 0 && !regions.find((r) => r.id === activeRegion)) {
+      setActiveRegion(regions[0].id);
+      setActiveNominal("");
+      setSelectedPrice(0);
+    }
+  }, [activePlatform, allProducts]);
+
+  function handlePlatformChange(slug: string) {
     setActivePlatform(slug);
     setActiveRegion("");
     setActiveNominal("");
     setSelectedPrice(0);
-    getPlatformBySlug(slug).then((data) => {
-      const uniqueRegions = data.products
-        ? [...new Map(data.products.map((p: any) => [p.region.id, p.region])).values()]
-        : [];
-      setRegions(uniqueRegions as any);
-      setProducts(data.products ?? []);
-      if (uniqueRegions.length > 0) setActiveRegion((uniqueRegions[0] as any).id);
-    });
   }
 
   function handleRegionChange(id: string) {
@@ -57,7 +77,7 @@ export default function App() {
       <Header
         platforms={platforms}
         activePlatform={activePlatform}
-        onPlatformChange={loadPlatformData}
+        onPlatformChange={handlePlatformChange}
       />
       <main style={{ maxWidth: 560, margin: "0 auto", padding: "44px 24px" }}>
         <RegionSelector
@@ -66,7 +86,9 @@ export default function App() {
           onRegionChange={handleRegionChange}
         />
         <NominalSelector
-          products={products}
+          products={allProducts.filter(
+            (p) => p.platform.slug === activePlatform && p.regionId === activeRegion
+          )}
           activeRegion={activeRegion}
           activeNominal={activeNominal}
           onNominalChange={handleNominalChange}

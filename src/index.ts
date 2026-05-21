@@ -1,11 +1,13 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import cron from "node-cron";
 import { platformsRouter } from "./routes/platforms";
 import { productsRouter } from "./routes/products";
 import { ordersRouter } from "./routes/orders";
 import { errorHandler } from "./middleware/errorHandler";
 import authRouter from "./routes/auth";
+import { fetchAndUpdateCbrRates } from "./services/currency";
 
 dotenv.config();
 
@@ -26,6 +28,26 @@ app.use("/api/orders", ordersRouter);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+
+  try {
+    await fetchAndUpdateCbrRates();
+  } catch (err) {
+    console.error('Ошибка обновления курсов ЦБ:', err);
+  }
+
+  // Каждый день в 10:00 по московскому времени
+  cron.schedule('0 10 * * *', async () => {
+    console.log('Крон: обновляем курсы ЦБ...');
+    try {
+      await fetchAndUpdateCbrRates();
+    } catch (err) {
+      console.error('Крон: ошибка обновления курсов:', err);
+    }
+  }, {
+    timezone: 'Europe/Moscow'
+  });
+
+  console.log('Крон запущен: курсы обновляются каждый день в 10:00 МСК');
 });

@@ -1,39 +1,45 @@
-import { Router } from 'express';
-import prisma from '../lib/prisma';
-import { calculatePrice } from '../services/pricing';
+import { Router } from "express";
+import prisma from "../lib/prisma";
+import { calculatePrice } from "../services/pricing";
+import { authMiddleware, AuthRequest } from "../middleware/authMiddleware";
 
 const router = Router();
 
-// Создать заказ
-router.post('/', async (req, res, next) => {
+// Создать заказ — только для авторизованных
+router.post("/", authMiddleware, async (req: AuthRequest, res, next) => {
   try {
-    const { userId, productId } = req.body;
+    const { productId } = req.body;
+    const userId = req.userId!; // берём из токена, не из body
 
-    if (!userId || !productId) {
-      res.status(400).json({ error: 'userId and productId are required' });
+    if (!productId) {
+      res.status(400).json({ error: "productId is required" });
       return;
     }
 
     const product = await prisma.product.findUnique({
       where: { id: productId },
-      include: { region: true }
+      include: { region: true },
     });
 
     if (!product) {
-      res.status(404).json({ error: 'Product not found' });
+      res.status(404).json({ error: "Product not found" });
       return;
     }
 
     const currency = await prisma.currency.findUnique({
-      where: { code: product.region.currency }
+      where: { code: product.region.currency },
     });
 
     if (!currency) {
-      res.status(400).json({ error: 'Currency rate not found' });
+      res.status(400).json({ error: "Currency rate not found" });
       return;
     }
 
-    const amountRub = calculatePrice(product.amount, currency.rate, currency.markup);
+    const amountRub = calculatePrice(
+      product.amount,
+      currency.rate,
+      currency.markup,
+    );
 
     const order = await prisma.order.create({
       data: {
@@ -42,8 +48,8 @@ router.post('/', async (req, res, next) => {
         amountRub,
         rate: currency.rate,
         markup: currency.markup,
-        status: 'pending'
-      }
+        status: "pending",
+      },
     });
 
     res.status(201).json(order);
@@ -53,16 +59,16 @@ router.post('/', async (req, res, next) => {
 });
 
 // Получить заказы пользователя
-router.get('/user/:userId', async (req, res, next) => {
+router.get("/user/:userId", async (req, res, next) => {
   try {
     const orders = await prisma.order.findMany({
       where: { userId: req.params.userId },
       include: {
         product: {
-          include: { platform: true, region: true }
-        }
+          include: { platform: true, region: true },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
     res.json(orders);
   } catch (err) {
@@ -71,18 +77,18 @@ router.get('/user/:userId', async (req, res, next) => {
 });
 
 // Получить один заказ
-router.get('/:id', async (req, res, next) => {
+router.get("/:id", async (req, res, next) => {
   try {
     const order = await prisma.order.findUnique({
       where: { id: req.params.id },
       include: {
         product: {
-          include: { platform: true, region: true }
-        }
-      }
+          include: { platform: true, region: true },
+        },
+      },
     });
     if (!order) {
-      res.status(404).json({ error: 'Order not found' });
+      res.status(404).json({ error: "Order not found" });
       return;
     }
     res.json(order);

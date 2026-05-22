@@ -1,4 +1,4 @@
-const BASE = "http://213.176.66.225:3000/api";
+const BASE = "/api";
 
 export async function getPlatforms() {
   const res = await fetch(`${BASE}/platforms`);

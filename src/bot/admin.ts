@@ -14,7 +14,7 @@ export const initBot = () => {
 
   bot.onText(/\/start/, (msg: Message) => {
     if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
-    bot.sendMessage(msg.chat.id, 
+    bot.sendMessage(msg.chat.id,
 `👋 Привет! Я админ-бот KeyShop.
 
 📦 Заказы
@@ -23,13 +23,17 @@ export const initBot = () => {
 💱 Курсы и наценки
 /rates — курсы и наценки по валютам
 /markup USD 0.15 — установить наценку (0.15 = 15%)
-Валюты: USD, TRY, KZT, ARS
+Валюты: USD, TRY, KZT, INR
 
 🎮 Платформы
 /platforms — список платформ и статус
 /platform playstation off — выключить платформу
 /platform playstation on — включить платформу
 Слаги: playstation, steam, ai-services, other
+
+🔑 Ключи
+/addkey <productId> <код> — добавить ключ
+/keys <productId> — посмотреть ключи продукта
 
 👥 Пользователи
 /users — последние 10 пользователей
@@ -104,6 +108,53 @@ export const initBot = () => {
     const userId = match![1].trim();
     await prisma.user.update({ where: { id: userId }, data: { role: 'BANNED' } });
     bot.sendMessage(msg.chat.id, `🚫 Пользователь ${userId.slice(0, 8)} заблокирован`);
+  });
+
+  // Добавить ключ: /addkey <productId> <код>
+  bot.onText(/\/addkey (\S+) (\S+)/, async (msg: Message, match: RegExpExecArray | null) => {
+    if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
+    const productId = match![1].trim();
+    const code = match![2].trim();
+
+    try {
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        include: { platform: true, region: true }
+      });
+      if (!product) return bot.sendMessage(msg.chat.id, '❌ Продукт не найден');
+
+      await prisma.key.create({ data: { productId, code } });
+
+      const total = await prisma.key.count({ where: { productId, isUsed: false } });
+      bot.sendMessage(msg.chat.id,
+        `✅ Ключ добавлен!\n\n🎮 ${product.platform.name} ${product.region.flag} ${product.amount} ${product.region.currency}\n🔑 ${code}\n📦 Свободных ключей: ${total}`
+      );
+    } catch (err) {
+      bot.sendMessage(msg.chat.id, '❌ Ошибка при добавлении ключа');
+    }
+  });
+
+  // Посмотреть ключи продукта: /keys <productId>
+  bot.onText(/\/keys (\S+)/, async (msg: Message, match: RegExpExecArray | null) => {
+    if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
+    const productId = match![1].trim();
+
+    try {
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        include: { platform: true, region: true }
+      });
+      if (!product) return bot.sendMessage(msg.chat.id, '❌ Продукт не найден');
+
+      const free = await prisma.key.count({ where: { productId, isUsed: false } });
+      const used = await prisma.key.count({ where: { productId, isUsed: true } });
+
+      bot.sendMessage(msg.chat.id,
+        `🔑 Ключи: ${product.platform.name} ${product.region.flag} ${product.amount} ${product.region.currency}\n\n✅ Свободных: ${free}\n❌ Использованных: ${used}`
+      );
+    } catch (err) {
+      bot.sendMessage(msg.chat.id, '❌ Ошибка');
+    }
   });
 
   console.log('🤖 Telegram бот запущен');

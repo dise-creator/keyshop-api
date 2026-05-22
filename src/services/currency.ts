@@ -37,6 +37,7 @@ export const fetchAndUpdateCbrRates = async () => {
     TRY: 1,
     KZT: 1,
     ARS: 1,
+    INR: 1,
   };
 
   for (const valuta of valutas) {

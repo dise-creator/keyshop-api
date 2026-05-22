@@ -84,7 +84,7 @@ export default function App() {
         theme={theme}
         onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
       />
-      <main style={{ maxWidth: 560, margin: "0 auto", padding: "44px 24px", minHeight: "70vh" }}>
+      <main style={{ maxWidth: 680, margin: "0 auto", padding: "44px 24px", minHeight: "70vh" }}>
         <RegionSelector
           regions={regions}
           activeRegion={activeRegion}

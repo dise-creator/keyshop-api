@@ -13,6 +13,8 @@ export default function Checkout({ price, label, productId }: CheckoutProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [keyCode, setKeyCode] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const allChecked = checks.terms && checks.noRefund && checks.privacy;
   const canBuy = allChecked && email.includes("@") && price > 0 && !loading;
@@ -32,6 +34,7 @@ export default function Checkout({ price, label, productId }: CheckoutProps) {
       });
       const data = await res.json();
       if (res.ok) {
+        setKeyCode(data.key ?? null);
         setSuccess(true);
       } else {
         setError(data.error ?? "Что-то пошло не так");
@@ -43,17 +46,41 @@ export default function Checkout({ price, label, productId }: CheckoutProps) {
     }
   }
 
+  function handleCopy() {
+    if (!keyCode) return;
+    navigator.clipboard.writeText(keyCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   if (success) {
     return (
       <div style={styles.success}>
         <p style={styles.successIcon}>✓</p>
         <p style={styles.successTitle}>Заказ оформлен!</p>
-        <p style={styles.successText}>
-          Мы свяжемся с вами на <strong>{email}</strong> в ближайшее время.
-        </p>
-        <a href="https://t.me/ВАШ_TELEGRAM" style={styles.tgBtn} target="_blank">
-          Написать в Telegram
-        </a>
+        {keyCode ? (
+          <>
+            <p style={styles.successText}>Ваш ключ активации:</p>
+            <div style={styles.keyBox}>
+              <span style={styles.keyCode}>{keyCode}</span>
+              <button style={styles.copyBtn} onClick={handleCopy}>
+                {copied ? "Скопировано!" : "Скопировать"}
+              </button>
+            </div>
+            <p style={styles.successText}>
+              Инструкция по активации отправлена на <strong>{email}</strong>
+            </p>
+          </>
+        ) : (
+          <>
+            <p style={styles.successText}>
+              Мы свяжемся с вами на <strong>{email}</strong> в ближайшее время.
+            </p>
+            <a href="https://t.me/ВАШ_TELEGRAM" style={styles.tgBtn} target="_blank">
+              Написать в Telegram
+            </a>
+          </>
+        )}
       </div>
     );
   }
@@ -71,28 +98,28 @@ export default function Checkout({ price, label, productId }: CheckoutProps) {
         onChange={(e) => setEmail(e.target.value)}
       />
       <div style={styles.checks}>
-        <label style={styles.row} onClick={() => toggle("terms")}>
+        <div style={styles.row} onClick={() => toggle("terms")}>
           <div style={{ ...styles.box, ...(checks.terms ? styles.boxOn : {}) }}>
             {checks.terms && <span style={styles.tick} />}
           </div>
           <span style={styles.text}>
             Я ознакомился с <span style={styles.link}>условиями использования</span> и принимаю их
           </span>
-        </label>
-        <label style={styles.row} onClick={() => toggle("noRefund")}>
+        </div>
+        <div style={styles.row} onClick={() => toggle("noRefund")}>
           <div style={{ ...styles.box, ...(checks.noRefund ? styles.boxOn : {}) }}>
             {checks.noRefund && <span style={styles.tick} />}
           </div>
           <span style={styles.text}>Я понимаю, что цифровые товары не подлежат возврату</span>
-        </label>
-        <label style={styles.row} onClick={() => toggle("privacy")}>
+        </div>
+        <div style={styles.row} onClick={() => toggle("privacy")}>
           <div style={{ ...styles.box, ...(checks.privacy ? styles.boxOn : {}) }}>
             {checks.privacy && <span style={styles.tick} />}
           </div>
           <span style={styles.text}>
             Согласен на обработку <span style={styles.link}>персональных данных</span>
           </span>
-        </label>
+        </div>
       </div>
       {error && <p style={styles.error}>{error}</p>}
       <div style={styles.priceRow}>
@@ -126,32 +153,32 @@ const styles: Record<string, React.CSSProperties> = {
     transition: "color 0.3s",
   },
   fieldLabel: {
-    fontSize: 12,
+    fontSize: 14,
     color: "var(--text-secondary)",
-    marginBottom: 8,
+    marginBottom: 10,
     transition: "color 0.3s",
   },
   input: {
     width: "100%",
-    padding: "11px 14px",
+    padding: "14px 16px",
     border: "0.5px solid var(--border-input)",
-    borderRadius: 8,
-    fontSize: 13,
+    borderRadius: 10,
+    fontSize: 15,
     fontFamily: "inherit",
     color: "var(--text-primary)",
     background: "var(--bg-input)",
     outline: "none",
     transition: "all 0.3s",
   },
-  checks: { display: "flex", flexDirection: "column", gap: 12, margin: "20px 0" },
-  row: { display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" },
+  checks: { display: "flex", flexDirection: "column", gap: 16, margin: "24px 0" },
+  row: { display: "flex", alignItems: "flex-start", gap: 12, cursor: "pointer" },
   box: {
-    width: 16,
-    height: 16,
-    minWidth: 16,
+    width: 20,
+    height: 20,
+    minWidth: 20,
     border: "0.5px solid var(--border-chip)",
-    borderRadius: 4,
-    marginTop: 1,
+    borderRadius: 5,
+    marginTop: 2,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -161,18 +188,13 @@ const styles: Record<string, React.CSSProperties> = {
   boxOn: { background: "#F57C20", border: "0.5px solid #F57C20" },
   tick: {
     display: "block",
-    width: 8,
-    height: 5,
-    borderLeft: "1.5px solid #fff",
-    borderBottom: "1.5px solid #fff",
+    width: 10,
+    height: 6,
+    borderLeft: "2px solid #fff",
+    borderBottom: "2px solid #fff",
     transform: "rotate(-45deg) translateY(-1px)",
   },
-  text: {
-    fontSize: 12,
-    color: "var(--text-secondary)",
-    lineHeight: 1.5,
-    transition: "color 0.3s",
-  },
+  text: { fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.6, transition: "color 0.3s" },
   link: {
     color: "var(--text-link)",
     textDecoration: "underline",
@@ -185,26 +207,17 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "baseline",
     marginBottom: 12,
   },
-  total: {
-    fontSize: 22,
-    fontWeight: 700,
-    color: "var(--text-primary)",
-    transition: "color 0.3s",
-  },
-  hint: {
-    fontSize: 11,
-    color: "var(--text-muted)",
-    transition: "color 0.3s",
-  },
+  total: { fontSize: 26, fontWeight: 700, color: "var(--text-primary)", transition: "color 0.3s" },
+  hint: { fontSize: 13, color: "var(--text-muted)", transition: "color 0.3s" },
   btn: {
     width: "100%",
-    padding: 14,
+    padding: 16,
     background: "var(--accent)",
     color: "#fff",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 700,
     border: "none",
-    borderRadius: 10,
+    borderRadius: 12,
     cursor: "pointer",
     fontFamily: "inherit",
     transition: "opacity 0.2s",
@@ -242,5 +255,36 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 13,
     fontWeight: 600,
     textDecoration: "none",
+  },
+  keyBox: {
+    background: "var(--bg-btn)",
+    border: "1px solid var(--border-nominal-active)",
+    borderRadius: 10,
+    padding: "14px 16px",
+    margin: "12px 0 20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  keyCode: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: "var(--accent)",
+    letterSpacing: "0.05em",
+    wordBreak: "break-all",
+  },
+  copyBtn: {
+    padding: "6px 14px",
+    background: "var(--accent)",
+    color: "#fff",
+    border: "none",
+    borderRadius: 8,
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    fontFamily: "inherit",
+    transition: "opacity 0.2s",
   },
 };

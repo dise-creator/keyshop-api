@@ -4,14 +4,13 @@ import { calculatePrice } from "../services/pricing";
 import { authMiddleware, AuthRequest } from "../middleware/authMiddleware";
 import bcrypt from "bcrypt";
 
-
 const router = Router();
 
 // Создать заказ — только для авторизованных
 router.post("/", authMiddleware, async (req: AuthRequest, res, next) => {
   try {
     const { productId } = req.body;
-    const userId = req.userId!; // берём из токена, не из body
+    const userId = req.userId!.toString(); // фикс number → string
 
     if (!productId) {
       res.status(400).json({ error: "productId is required" });
@@ -37,11 +36,7 @@ router.post("/", authMiddleware, async (req: AuthRequest, res, next) => {
       return;
     }
 
-    const amountRub = calculatePrice(
-      product.amount,
-      currency.rate,
-      currency.markup,
-    );
+    const amountRub = calculatePrice(product.amount, currency.rate, currency.markup);
 
     const order = await prisma.order.create({
       data: {
@@ -66,9 +61,7 @@ router.get("/user/:userId", async (req, res, next) => {
     const orders = await prisma.order.findMany({
       where: { userId: req.params.userId },
       include: {
-        product: {
-          include: { platform: true, region: true },
-        },
+        product: { include: { platform: true, region: true } },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -84,9 +77,7 @@ router.get("/:id", async (req, res, next) => {
     const order = await prisma.order.findUnique({
       where: { id: req.params.id },
       include: {
-        product: {
-          include: { platform: true, region: true },
-        },
+        product: { include: { platform: true, region: true } },
       },
     });
     if (!order) {
@@ -99,6 +90,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+// Гостевой заказ с автовыдачей ключа
 router.post("/guest", async (req, res, next) => {
   try {
     const { email, productId } = req.body;
@@ -117,7 +109,6 @@ router.post("/guest", async (req, res, next) => {
       });
     }
 
-    // Создаём заказ
     const product = await prisma.product.findUnique({
       where: { id: productId },
       include: { region: true },
@@ -139,6 +130,12 @@ router.post("/guest", async (req, res, next) => {
 
     const amountRub = calculatePrice(product.amount, currency.rate, currency.markup);
 
+    // Ищем свободный ключ для этого продукта
+    const freeKey = await prisma.key.findFirst({
+      where: { productId, isUsed: false },
+    });
+
+    // Создаём заказ
     const order = await prisma.order.create({
       data: {
         userId: user.id,
@@ -146,15 +143,27 @@ router.post("/guest", async (req, res, next) => {
         amountRub,
         rate: currency.rate,
         markup: currency.markup,
-        status: "pending",
+        status: freeKey ? "completed" : "pending",
       },
     });
 
-    res.status(201).json({ order, userId: user.id });
+    // Если есть ключ — помечаем как использованный
+    if (freeKey) {
+      await prisma.key.update({
+        where: { id: freeKey.id },
+        data: { isUsed: true, usedInOrderId: order.id },
+      });
+    }
+
+    res.status(201).json({
+      order,
+      userId: user.id,
+      key: freeKey ? freeKey.code : null,
+      hasKey: !!freeKey,
+    });
   } catch (err) {
     next(err);
   }
 });
 
 export { router as ordersRouter };
-

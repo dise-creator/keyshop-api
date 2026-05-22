@@ -3,6 +3,7 @@ import prisma from "../lib/prisma";
 import { calculatePrice } from "../services/pricing";
 import { authMiddleware, AuthRequest } from "../middleware/authMiddleware";
 import bcrypt from "bcrypt";
+import { sendOrderEmail } from "../services/email";
 
 const router = Router();
 
@@ -10,7 +11,7 @@ const router = Router();
 router.post("/", authMiddleware, async (req: AuthRequest, res, next) => {
   try {
     const { productId } = req.body;
-    const userId = req.userId!.toString(); // фикс number → string
+    const userId = req.userId!.toString();
 
     if (!productId) {
       res.status(400).json({ error: "productId is required" });
@@ -111,7 +112,7 @@ router.post("/guest", async (req, res, next) => {
 
     const product = await prisma.product.findUnique({
       where: { id: productId },
-      include: { region: true },
+      include: { region: true, platform: true },
     });
 
     if (!product) {
@@ -130,7 +131,7 @@ router.post("/guest", async (req, res, next) => {
 
     const amountRub = calculatePrice(product.amount, currency.rate, currency.markup);
 
-    // Ищем свободный ключ для этого продукта
+    // Ищем свободный ключ
     const freeKey = await prisma.key.findFirst({
       where: { productId, isUsed: false },
     });
@@ -153,6 +154,19 @@ router.post("/guest", async (req, res, next) => {
         where: { id: freeKey.id },
         data: { isUsed: true, usedInOrderId: order.id },
       });
+    }
+
+    // Отправляем email
+    try {
+      await sendOrderEmail(
+        email,
+        freeKey ? freeKey.code : null,
+        product.platform.name,
+        `${product.amount} ${product.region.currency}`,
+        amountRub
+      );
+    } catch (emailErr) {
+      console.error("Ошибка отправки email:", emailErr);
     }
 
     res.status(201).json({

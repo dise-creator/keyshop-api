@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function Footer() {
   return (
     <footer>
@@ -34,32 +36,37 @@ const styles: Record<string, React.CSSProperties> = {
     display: "grid",
     gridTemplateColumns: "1fr 1fr 1fr",
     gap: 24,
-    background: "#ffffff",
-    borderTop: "0.5px solid rgba(30,80,180,0.13)",
+    background: "var(--bg-footer)",
+    borderTop: "0.5px solid var(--border-footer)",
     padding: "32px 28px 20px",
+    transition: "background 0.3s, border-color 0.3s",
   },
   title: {
     fontSize: 10,
     letterSpacing: "0.09em",
     textTransform: "uppercase",
-    color: "#8A9BBB",
+    color: "var(--text-muted)",
     marginBottom: 12,
+    transition: "color 0.3s",
   },
   item: {
     fontSize: 12,
-    color: "#4A5A7A",
+    color: "var(--text-secondary)",
     marginBottom: 7,
     cursor: "pointer",
+    transition: "color 0.3s",
   },
   bottom: {
-    background: "#ffffff",
-    borderTop: "0.5px solid rgba(30,80,180,0.13)",
+    background: "var(--bg-footer)",
+    borderTop: "0.5px solid var(--border-footer)",
     padding: "14px 28px",
     display: "flex",
     justifyContent: "space-between",
+    transition: "background 0.3s",
   },
   copy: {
     fontSize: 11,
-    color: "#8A9BBB",
+    color: "var(--text-muted)",
+    transition: "color 0.3s",
   },
 };

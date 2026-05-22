@@ -18,6 +18,7 @@ interface Product {
 }
 
 export default function App() {
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [platforms, setPlatforms] = useState<{ id: string; slug: string; name: string }[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [activePlatform, setActivePlatform] = useState("");
@@ -27,6 +28,10 @@ export default function App() {
   const [selectedLabel, setSelectedLabel] = useState("");
 
   useEffect(() => {
+    document.body.className = `theme-${theme}`;
+  }, [theme]);
+
+  useEffect(() => {
     getPlatforms().then((data) => {
       setPlatforms(data);
       if (data.length > 0) setActivePlatform(data[0].slug);
@@ -34,7 +39,6 @@ export default function App() {
     getAllProducts().then(setAllProducts);
   }, []);
 
-  // Регионы для активной платформы
   const regions = Object.values(
     allProducts
       .filter((p) => p.platform.slug === activePlatform)
@@ -44,7 +48,6 @@ export default function App() {
       }, {} as Record<string, Product["region"]>)
   );
 
-  // При смене платформы — выбираем первый регион
   useEffect(() => {
     if (regions.length > 0 && !regions.find((r) => r.id === activeRegion)) {
       setActiveRegion(regions[0].id);
@@ -73,13 +76,15 @@ export default function App() {
   }
 
   return (
-    <div style={{ background: "#EEF3FB", minHeight: "100vh" }}>
+    <div style={{ background: "var(--bg-main)", minHeight: "100vh", transition: "background 0.3s" }}>
       <Header
         platforms={platforms}
         activePlatform={activePlatform}
         onPlatformChange={handlePlatformChange}
+        theme={theme}
+        onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
       />
-      <main style={{ maxWidth: 560, margin: "0 auto", padding: "44px 24px" }}>
+      <main style={{ maxWidth: 560, margin: "0 auto", padding: "44px 24px", minHeight: "70vh" }}>
         <RegionSelector
           regions={regions}
           activeRegion={activeRegion}
@@ -93,7 +98,7 @@ export default function App() {
           activeNominal={activeNominal}
           onNominalChange={handleNominalChange}
         />
-        <Checkout price={selectedPrice} label={selectedLabel} />
+        <Checkout price={selectedPrice} label={selectedLabel} productId={activeNominal} />
       </main>
       <Footer />
     </div>

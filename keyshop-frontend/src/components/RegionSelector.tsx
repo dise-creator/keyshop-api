@@ -1,3 +1,5 @@
+import React from "react";
+
 interface Region {
   id: string;
   code: string;
@@ -35,13 +37,14 @@ export default function RegionSelector({ regions, activeRegion, onRegionChange }
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  wrap: { marginBottom: 28 },
+  wrap: { marginBottom: 28, minHeight: 52 },
   label: {
     fontSize: 10,
     letterSpacing: "0.12em",
     textTransform: "uppercase",
-    color: "#8A9BBB",
+    color: "var(--text-muted)",
     marginBottom: 12,
+    transition: "color 0.3s",
   },
   chips: { display: "flex", flexWrap: "wrap", gap: 8 },
   chip: {
@@ -51,17 +54,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 13,
     padding: "8px 18px",
     borderRadius: 100,
-    border: "0.5px solid rgba(30,80,180,0.25)",
-    background: "#ffffff",
-    color: "#4A5A7A",
+    border: "0.5px solid var(--border-chip)",
+    background: "var(--bg-chip)",
+    color: "var(--text-chip)",
     cursor: "pointer",
     fontFamily: "inherit",
     transition: "all 0.15s",
   },
   chipActive: {
-    border: "0.5px solid #1A4DB5",
-    color: "#1A4DB5",
-    background: "#EAF0FF",
+    border: "0.5px solid var(--border-chip-active)",
+    color: "var(--text-chip-active)",
+    background: "var(--bg-chip-active)",
     fontWeight: 600,
   },
 };

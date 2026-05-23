@@ -247,6 +247,21 @@ export const initBot = () => {
     }
   });
 
+  bot.onText(/\/products/, async (msg: Message) => {
+  if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
+
+  const products = await prisma.product.findMany({
+    include: { platform: true, region: true },
+    orderBy: [{ platformId: 'asc' }]
+  });
+
+  const lines = products.map(p =>
+    `${p.platform.name} ${p.region.flag} ${p.amount} ${p.region.currency}\n\`${p.id}\``
+  ).join('\n\n');
+
+  bot.sendMessage(msg.chat.id, `📦 *Продукты:*\n\n${lines}`, { parse_mode: 'Markdown' });
+});
+
   // /reviews — последние отзывы
   bot.onText(/\/reviews/, async (msg: Message) => {
     if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);

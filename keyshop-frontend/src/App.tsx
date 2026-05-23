@@ -5,6 +5,7 @@ import NominalSelector from "./components/NominalSelector";
 import Checkout from "./components/Checkout";
 import Footer from "./components/Footer";
 import { getPlatforms, getAllProducts } from "./api";
+import PlatformHints from "./components/PlatformHints";
 
 interface Product {
   id: string;
@@ -90,6 +91,8 @@ export default function App() {
           activeRegion={activeRegion}
           onRegionChange={handleRegionChange}
         />
+        <PlatformHints activePlatform={activePlatform} /> 
+        
         <NominalSelector
           products={allProducts.filter(
             (p) => p.platform.slug === activePlatform && p.regionId === activeRegion

@@ -25,7 +25,7 @@ export default function NominalSelector({ products, activeRegion, activeNominal,
   return (
     <div style={styles.wrap}>
       <p style={styles.label}>Номинал</p>
-      <div style={styles.grid}>
+      <div style={styles.grid} className="nominal-grid">
         {visible.map((p) => (
           <button
             key={p.id}
@@ -43,10 +43,7 @@ export default function NominalSelector({ products, activeRegion, activeNominal,
       </div>
 
       {hasMore && (
-        <button
-          onClick={() => setExpanded((e) => !e)}
-          style={styles.toggleBtn}
-        >
+        <button onClick={() => setExpanded((e) => !e)} style={styles.toggleBtn}>
           <span>{expanded ? "Свернуть" : "Все номиналы"}</span>
           <svg
             width="14"
@@ -79,25 +76,24 @@ const styles: Record<string, React.CSSProperties> = {
     transition: "color 0.3s",
   },
   grid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, width: "100%" },
-  
   cardActive: {
     border: "0.5px solid var(--border-nominal-active)",
     background: "var(--bg-nominal-active)",
   },
- card: {
-  position: "relative",
-  padding: "16px 12px",
-  border: "0.5px solid var(--border-nominal)",
-  borderRadius: 12,
-  background: "var(--bg-nominal)",
-  cursor: "pointer",
-  textAlign: "center",
-  fontFamily: "inherit",
-  transition: "all 0.15s",
-  width: "100%",
-},
-amount: { fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4, transition: "color 0.3s" },
-price: { fontSize: 12, color: "var(--text-secondary)", transition: "color 0.3s" },
+  card: {
+    position: "relative",
+    padding: "16px 12px",
+    border: "0.5px solid var(--border-nominal)",
+    borderRadius: 12,
+    background: "var(--bg-nominal)",
+    cursor: "pointer",
+    textAlign: "center",
+    fontFamily: "inherit",
+    transition: "all 0.15s",
+    width: "100%",
+  },
+  amount: { fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4, transition: "color 0.3s" },
+  price: { fontSize: 12, color: "var(--text-secondary)", transition: "color 0.3s" },
   dot: {
     position: "absolute",
     top: 7,

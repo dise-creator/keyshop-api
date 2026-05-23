@@ -117,3 +117,41 @@ body.theme-dark {
   box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 8px rgba(245,124,32,0.25) !important;
   transform: scale(1.15) !important;
 }
+
+
+/* ───── Мобильная адаптация ───── */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  header {
+    padding: 10px 16px !important;
+  }
+
+  main {
+    padding: 24px 16px !important;
+  }
+
+  .nominal-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    padding: 28px 24px !important;
+    gap: 24px !important;
+  }
+
+  .footer-grid > div {
+    text-align: left !important;
+  }
+
+  .footer-bottom {
+    padding: 14px 24px !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    align-items: center !important;
+  }
+}

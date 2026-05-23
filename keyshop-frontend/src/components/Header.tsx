@@ -83,7 +83,7 @@ export default function Header({
             <span style={styles.logoText}>
               Key<span style={styles.logoAccent}>capp</span>
             </span>
-            <span style={styles.logoSub}>digital keys store</span>
+            {/* <span style={styles.logoSub}>digital keys store</span> */}
           </div>
         </div>
 
@@ -178,7 +178,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 1,
   },
   logoText: {
-    fontSize: 22,
+    fontSize: 30,
     fontWeight: 800,
     letterSpacing: "-0.03em",
     color: "var(--text-primary)",

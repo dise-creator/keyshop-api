@@ -155,12 +155,13 @@ router.post("/guest", async (req, res, next) => {
     // Email
     try {
       await sendOrderEmail(
-        email,
-        freeKey ? freeKey.code : null,
-        product.platform.name,
-        `${product.amount} ${product.region.currency}`,
-        amountRub
-      );
+  email,
+  freeKey ? freeKey.code : null,
+  product.platform.name,
+  product.platform.slug,        // 👈 добавили
+  `${product.amount} ${product.region.currency}`,
+  amountRub
+);
     } catch (emailErr) {
       console.error("Ошибка отправки email:", emailErr);
     }

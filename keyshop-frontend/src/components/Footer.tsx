@@ -1,37 +1,339 @@
-import React from "react";
+import React, { useState } from "react";
+
+type ModalKey = "about" | "howItWorks" | "faq" | "terms" | "privacy" | "offer";
+
+interface ModalData {
+  title: string;
+  content: React.ReactNode;
+}
+
+const MODAL_CONTENT: Record<ModalKey, ModalData> = {
+  about: {
+    title: "О магазине",
+    content: (
+      <div>
+        <p>KeyShop — магазин цифровых ключей для сервисов, недоступных в России.</p>
+        <p style={{ marginTop: 12 }}>
+          Мы работаем как посредник: покупаем ключи пополнения по иностранному курсу и продаём
+          в рублях с прозрачной наценкой. Никаких скрытых комиссий.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          Поддерживаем PlayStation 5, Steam, ИИ-сервисы (ChatGPT, Midjourney, Claude) и другие
+          платформы — Spotify, YouTube Premium, Adobe CC.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          Ключи выдаются автоматически сразу после оплаты и приходят на email. Если что-то пошло
+          не так — мы на связи в Telegram.
+        </p>
+      </div>
+    ),
+  },
+  howItWorks: {
+    title: "Как это работает",
+    content: (
+      <div>
+        {[
+          {
+            step: "1",
+            title: "Выбираешь платформу и номинал",
+            desc: "PlayStation, Steam, ChatGPT или другой сервис — выбираешь регион и сумму пополнения.",
+          },
+          {
+            step: "2",
+            title: "Вводишь email и оплачиваешь",
+            desc: "Никакой регистрации. Просто email — на него придёт ключ. Оплата картой.",
+          },
+          {
+            step: "3",
+            title: "Получаешь ключ мгновенно",
+            desc: "Ключ показывается на экране сразу после оплаты и дублируется на email.",
+          },
+          {
+            step: "4",
+            title: "Активируешь по инструкции",
+            desc: "На сайте есть подробный гайд для каждой платформы — прямо перед покупкой.",
+          },
+        ].map(({ step, title, desc }) => (
+          <div key={step} style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "var(--accent)",
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 700,
+                fontSize: 14,
+                flexShrink: 0,
+              }}
+            >
+              {step}
+            </div>
+            <div>
+              <div
+                style={{
+                  fontWeight: 600,
+                  fontSize: 14,
+                  color: "var(--text-primary)",
+                  marginBottom: 4,
+                }}
+              >
+                {title}
+              </div>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                {desc}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  faq: {
+    title: "Частые вопросы",
+    content: (
+      <div>
+        {[
+          {
+            q: "Когда придёт ключ после оплаты?",
+            a: "Мгновенно — ключ показывается на экране сразу после оплаты и дублируется на email.",
+          },
+          {
+            q: "Ключ не пришёл на email — что делать?",
+            a: "Проверь папку «Спам». Если там нет — напиши нам в Telegram @clicps_bot, разберёмся в течение нескольких минут.",
+          },
+          {
+            q: "Ключ не активируется — что делать?",
+            a: "Для PS5 и Steam убедись, что регион аккаунта совпадает с регионом ключа. Для ИИ-сервисов нужен VPN. Если проблема осталась — пиши в @clicps_bot.",
+          },
+          {
+            q: "Нужна ли регистрация на сайте?",
+            a: "Нет. Достаточно ввести email при оформлении заказа.",
+          },
+          {
+            q: "Можно ли вернуть деньги?",
+            a: "Цифровые ключи не подлежат возврату после выдачи. Если ключ оказался нерабочим — заменим бесплатно. Пиши в @clicps_bot.",
+          },
+          {
+            q: "Откуда берётся цена в рублях?",
+            a: "Цена = номинал × курс ЦБ РФ + наценка посредника. Курсы обновляются каждый день автоматически.",
+          },
+          {
+            q: "Нужен ли VPN?",
+            a: "Для PS5 и Steam — нет. Для ИИ-сервисов (ChatGPT, Midjourney, Claude) и некоторых других — да, на этапе активации.",
+          },
+        ].map(({ q, a }, i, arr) => (
+          <div
+            key={i}
+            style={{
+              marginBottom: 18,
+              paddingBottom: 18,
+              borderBottom: i < arr.length - 1 ? "1px solid var(--border)" : "none",
+            }}
+          >
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: 14,
+                color: "var(--text-primary)",
+                marginBottom: 6,
+              }}
+            >
+              {q}
+            </div>
+            <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+              {a}
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  terms: {
+    title: "Условия использования",
+    content: (
+      <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.8 }}>
+        <p>Используя сайт KeyShop, вы соглашаетесь со следующими условиями:</p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>1. Общие положения</strong>
+          <br />
+          KeyShop является посредником при продаже цифровых ключей активации для иностранных
+          сервисов. Все продаваемые ключи приобретаются на законных основаниях.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>2. Покупка и доставка</strong>
+          <br />
+          Цифровые ключи доставляются на указанный email автоматически после подтверждения
+          оплаты. Время доставки — мгновенно.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>3. Возврат</strong>
+          <br />
+          Цифровые товары не подлежат возврату после выдачи ключа. В случае нерабочего ключа
+          производится бесплатная замена.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>4. Ответственность</strong>
+          <br />
+          KeyShop не несёт ответственности за блокировку аккаунтов пользователей на сторонних
+          сервисах. Активация ключей производится на страх и риск покупателя в соответствии с
+          правилами соответствующего сервиса.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>5. Изменения</strong>
+          <br />
+          KeyShop оставляет за собой право изменять условия использования в любое время.
+          Актуальная версия всегда доступна на сайте.
+        </p>
+      </div>
+    ),
+  },
+  privacy: {
+    title: "Политика конфиденциальности",
+    content: (
+      <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.8 }}>
+        <p>
+          <strong style={{ color: "var(--text-primary)" }}>Какие данные мы собираем</strong>
+          <br />
+          Только email адрес, необходимый для доставки ключа. Никаких имён, телефонов, адресов.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>Как используем данные</strong>
+          <br />
+          Email используется исключительно для отправки купленного ключа. Мы не отправляем
+          рекламные рассылки без согласия.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>Передача третьим лицам</strong>
+          <br />
+          Мы не продаём и не передаём ваши данные третьим лицам. Email передаётся только
+          сервису Resend для технической отправки письма.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>Хранение данных</strong>
+          <br />
+          Данные хранятся на защищённых серверах. Вы можете запросить удаление своих данных,
+          написав в @clicps_bot.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>Cookies</strong>
+          <br />
+          Сайт не использует cookies для отслеживания или рекламы.
+        </p>
+      </div>
+    ),
+  },
+  offer: {
+    title: "Публичная оферта",
+    content: (
+      <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.8 }}>
+        <p>
+          Настоящая публичная оферта определяет условия продажи цифровых товаров через сайт
+          KeyShop.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>Предмет оферты</strong>
+          <br />
+          Продавец (KeyShop) предоставляет Покупателю цифровые ключи активации для иностранных
+          сервисов. Ключи являются цифровым товаром и доставляются в электронном виде.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>Акцепт оферты</strong>
+          <br />
+          Оформление заказа на сайте означает полное и безоговорочное принятие условий
+          настоящей оферты.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>Цена и оплата</strong>
+          <br />
+          Цена товара указана на сайте в рублях и формируется на основе актуального курса ЦБ РФ
+          с учётом наценки посредника. Оплата производится в момент оформления заказа.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>Доставка</strong>
+          <br />
+          Цифровой ключ доставляется на указанный email немедленно после подтверждения оплаты.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong style={{ color: "var(--text-primary)" }}>Гарантии</strong>
+          <br />
+          Продавец гарантирует работоспособность ключа на момент продажи. В случае
+          неработоспособности ключ заменяется бесплатно при обращении в @clicps_bot.
+        </p>
+      </div>
+    ),
+  },
+};
 
 export default function Footer() {
+  const [modal, setModal] = useState<ModalKey | null>(null);
+
+  const open = (m: ModalKey) => setModal(m);
+  const close = () => setModal(null);
+
+  const activeModal = modal ? MODAL_CONTENT[modal] : null;
+
   return (
-    <footer>
-      <div style={styles.grid}>
-        <div>
-          <p style={styles.title}>KeyShop</p>
-          <p style={styles.item}>О магазине</p>
-          <p style={styles.item}>Как это работает</p>
-          <p style={styles.item}>Отзывы</p>
+    <>
+      <footer>
+        <div style={footerStyles.grid}>
+          <div>
+            <p style={footerStyles.title}>KeyShop</p>
+            <p style={footerStyles.item} onClick={() => open("about")}>О магазине</p>
+            <p style={footerStyles.item} onClick={() => open("howItWorks")}>Как это работает</p>
+            <p style={{ ...footerStyles.item, ...footerStyles.itemDisabled }}>Отзывы</p>
+          </div>
+
+          <div style={{ textAlign: "center" }}>
+            <p style={footerStyles.title}>Помощь</p>
+            <p style={footerStyles.item} onClick={() => open("faq")}>FAQ</p>
+            <p
+              style={footerStyles.item}
+              onClick={() => window.open("https://t.me/clicps_bot", "_blank")}
+            >
+              Поддержка
+            </p>
+            <p
+              style={footerStyles.item}
+              onClick={() => window.open("https://t.me/clicps_bot", "_blank")}
+            >
+              Telegram
+            </p>
+          </div>
+
+          <div style={{ textAlign: "right" }}>
+            <p style={footerStyles.title}>Документы</p>
+            <p style={footerStyles.item} onClick={() => open("terms")}>Условия использования</p>
+            <p style={footerStyles.item} onClick={() => open("privacy")}>Политика конфиденциальности</p>
+            <p style={footerStyles.item} onClick={() => open("offer")}>Оферта</p>
+          </div>
         </div>
-        <div style={{ textAlign: "center" }}>
-  <p style={styles.title}>Помощь</p>
-  <p style={styles.item}>FAQ</p>
-  <p style={styles.item}>Поддержка</p>
-  <p style={styles.item}>Telegram</p>
-</div>
-        <div style={{ textAlign: "right" }}>
-  <p style={styles.title}>Документы</p>
-  <p style={styles.item}>Условия использования</p>
-  <p style={styles.item}>Политика конфиденциальности</p>
-  <p style={styles.item}>Оферта</p>
-</div>
-      </div>
-      <div style={styles.bottom}>
-        <span style={styles.copy}>© 2025 KeyShop</span>
-        <span style={styles.copy}>Все права защищены</span>
-      </div>
-    </footer>
+
+        <div style={footerStyles.bottom}>
+          <span style={footerStyles.copy}>© 2025 KeyShop</span>
+          <span style={footerStyles.copy}>Все права защищены</span>
+        </div>
+      </footer>
+
+      {activeModal && (
+        <div style={footerStyles.overlay} onClick={close}>
+          <div style={footerStyles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={footerStyles.modalHeader}>
+              <span style={footerStyles.modalTitle}>{activeModal.title}</span>
+              <button style={footerStyles.closeBtn} onClick={close}>✕</button>
+            </div>
+            <div style={footerStyles.modalBody}>{activeModal.content}</div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
+const footerStyles: Record<string, React.CSSProperties> = {
   grid: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr 1fr",
@@ -56,6 +358,11 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
     transition: "color 0.3s",
   },
+  itemDisabled: {
+    opacity: 0.35,
+    cursor: "default",
+    pointerEvents: "none",
+  },
   bottom: {
     background: "var(--bg-footer)",
     borderTop: "0.5px solid var(--border-footer)",
@@ -68,5 +375,54 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 13,
     color: "var(--text-muted)",
     transition: "color 0.3s",
+  },
+  overlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.6)",
+    zIndex: 1000,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  modal: {
+    background: "var(--bg-card)",
+    borderRadius: 18,
+    width: "100%",
+    maxWidth: 560,
+    maxHeight: "80vh",
+    display: "flex",
+    flexDirection: "column",
+    border: "1px solid var(--border)",
+    overflow: "hidden",
+  },
+  modalHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "20px 24px",
+    borderBottom: "1px solid var(--border)",
+    flexShrink: 0,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: "var(--text-primary)",
+  },
+  closeBtn: {
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    fontSize: 16,
+    color: "var(--text-muted)",
+    padding: 4,
+    lineHeight: 1,
+  },
+  modalBody: {
+    padding: "24px",
+    overflowY: "auto",
+    color: "var(--text-primary)",
+    lineHeight: 1.7,
   },
 };

@@ -14,6 +14,7 @@ dotenv.config();
 console.log("TOKEN:", process.env.TELEGRAM_BOT_TOKEN?.slice(0, 10));
 
 import { initBot } from "./bot/admin";
+import { initCustomerBot } from "./bot/customer";  // 👈 добавили
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,7 +31,6 @@ app.use("/api/platforms", platformsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/orders", ordersRouter);
 
-// Раздача фронтенда
 const frontendPath = path.join(__dirname, "../keyshop-frontend/dist");
 app.use(express.static(frontendPath));
 app.get("*", (req, res) => {
@@ -47,7 +47,10 @@ app.listen(PORT, async () => {
   } catch (err) {
     console.error("Ошибка обновления курсов ЦБ:", err);
   }
+
   initBot();
+  initCustomerBot();  // 👈 добавили
+
   cron.schedule(
     "0 10 * * *",
     async () => {

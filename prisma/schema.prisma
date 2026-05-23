@@ -41,26 +41,29 @@ model Product {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      String   @default("user")
-  createdAt DateTime @default(now())
-  orders    Order[]
+  id         String    @id @default(uuid())
+  email      String    @unique
+  password   String
+  role       String    @default("user")
+  telegramId BigInt?
+  createdAt  DateTime  @default(now())
+  orders     Order[]
+  reviews    Review[]
 }
 
 model Order {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String
   productId String
   amountRub Float
   rate      Float
   markup    Float
-  status    String   @default("pending")
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  status    String    @default("pending")
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
   keys      Key[]
+  review    Review?
 }
 
 model Currency {
@@ -80,4 +83,16 @@ model Key {
   usedInOrderId String?
   order         Order?   @relation(fields: [usedInOrderId], references: [id])
   createdAt     DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  orderId    String   @unique
+  userId     String
+  rating     Int
+  comment    String?
+  telegramId BigInt?
+  createdAt  DateTime @default(now())
+  order      Order    @relation(fields: [orderId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
 }

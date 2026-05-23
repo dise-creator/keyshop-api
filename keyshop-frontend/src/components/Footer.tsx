@@ -12,7 +12,7 @@ const MODAL_CONTENT: Record<ModalKey, ModalData> = {
     title: "О магазине",
     content: (
       <div>
-        <p>KeyShop — магазин цифровых ключей для сервисов, недоступных в России.</p>
+        <p>Keycapp — магазин цифровых ключей для сервисов, недоступных в России.</p>
         <p style={{ marginTop: 12 }}>
           Мы работаем как посредник: покупаем ключи пополнения по иностранному курсу и продаём
           в рублях с прозрачной наценкой. Никаких скрытых комиссий.
@@ -73,14 +73,7 @@ const MODAL_CONTENT: Record<ModalKey, ModalData> = {
               {step}
             </div>
             <div>
-              <div
-                style={{
-                  fontWeight: 600,
-                  fontSize: 14,
-                  color: "var(--text-primary)",
-                  marginBottom: 4,
-                }}
-              >
+              <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)", marginBottom: 4 }}>
                 {title}
               </div>
               <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
@@ -103,11 +96,11 @@ const MODAL_CONTENT: Record<ModalKey, ModalData> = {
           },
           {
             q: "Ключ не пришёл на email — что делать?",
-            a: "Проверь папку «Спам». Если там нет — напиши нам в Telegram @clicps_bot, разберёмся в течение нескольких минут.",
+            a: "Проверь папку «Спам». Если там нет — напиши нам в Telegram @keycappbot, разберёмся в течение нескольких минут.",
           },
           {
             q: "Ключ не активируется — что делать?",
-            a: "Для PS5 и Steam убедись, что регион аккаунта совпадает с регионом ключа. Для ИИ-сервисов нужен VPN. Если проблема осталась — пиши в @clicps_bot.",
+            a: "Для PS5 и Steam убедись, что регион аккаунта совпадает с регионом ключа. Для ИИ-сервисов нужен VPN. Если проблема осталась — пиши в @keycappbot.",
           },
           {
             q: "Нужна ли регистрация на сайте?",
@@ -115,7 +108,7 @@ const MODAL_CONTENT: Record<ModalKey, ModalData> = {
           },
           {
             q: "Можно ли вернуть деньги?",
-            a: "Цифровые ключи не подлежат возврату после выдачи. Если ключ оказался нерабочим — заменим бесплатно. Пиши в @clicps_bot.",
+            a: "Цифровые ключи не подлежат возврату после выдачи. Если ключ оказался нерабочим — заменим бесплатно. Пиши в @keycappbot.",
           },
           {
             q: "Откуда берётся цена в рублях?",
@@ -134,14 +127,7 @@ const MODAL_CONTENT: Record<ModalKey, ModalData> = {
               borderBottom: i < arr.length - 1 ? "1px solid var(--border)" : "none",
             }}
           >
-            <div
-              style={{
-                fontWeight: 600,
-                fontSize: 14,
-                color: "var(--text-primary)",
-                marginBottom: 6,
-              }}
-            >
+            <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)", marginBottom: 6 }}>
               {q}
             </div>
             <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
@@ -156,36 +142,31 @@ const MODAL_CONTENT: Record<ModalKey, ModalData> = {
     title: "Условия использования",
     content: (
       <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.8 }}>
-        <p>Используя сайт KeyShop, вы соглашаетесь со следующими условиями:</p>
+        <p>Используя сайт Keycapp, вы соглашаетесь со следующими условиями:</p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>1. Общие положения</strong>
-          <br />
-          KeyShop является посредником при продаже цифровых ключей активации для иностранных
+          <strong style={{ color: "var(--text-primary)" }}>1. Общие положения</strong><br />
+          Keycapp является посредником при продаже цифровых ключей активации для иностранных
           сервисов. Все продаваемые ключи приобретаются на законных основаниях.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>2. Покупка и доставка</strong>
-          <br />
+          <strong style={{ color: "var(--text-primary)" }}>2. Покупка и доставка</strong><br />
           Цифровые ключи доставляются на указанный email автоматически после подтверждения
           оплаты. Время доставки — мгновенно.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>3. Возврат</strong>
-          <br />
+          <strong style={{ color: "var(--text-primary)" }}>3. Возврат</strong><br />
           Цифровые товары не подлежат возврату после выдачи ключа. В случае нерабочего ключа
           производится бесплатная замена.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>4. Ответственность</strong>
-          <br />
-          KeyShop не несёт ответственности за блокировку аккаунтов пользователей на сторонних
+          <strong style={{ color: "var(--text-primary)" }}>4. Ответственность</strong><br />
+          Keycapp не несёт ответственности за блокировку аккаунтов пользователей на сторонних
           сервисах. Активация ключей производится на страх и риск покупателя в соответствии с
           правилами соответствующего сервиса.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>5. Изменения</strong>
-          <br />
-          KeyShop оставляет за собой право изменять условия использования в любое время.
+          <strong style={{ color: "var(--text-primary)" }}>5. Изменения</strong><br />
+          Keycapp оставляет за собой право изменять условия использования в любое время.
           Актуальная версия всегда доступна на сайте.
         </p>
       </div>
@@ -196,31 +177,26 @@ const MODAL_CONTENT: Record<ModalKey, ModalData> = {
     content: (
       <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.8 }}>
         <p>
-          <strong style={{ color: "var(--text-primary)" }}>Какие данные мы собираем</strong>
-          <br />
+          <strong style={{ color: "var(--text-primary)" }}>Какие данные мы собираем</strong><br />
           Только email адрес, необходимый для доставки ключа. Никаких имён, телефонов, адресов.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Как используем данные</strong>
-          <br />
+          <strong style={{ color: "var(--text-primary)" }}>Как используем данные</strong><br />
           Email используется исключительно для отправки купленного ключа. Мы не отправляем
           рекламные рассылки без согласия.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Передача третьим лицам</strong>
-          <br />
+          <strong style={{ color: "var(--text-primary)" }}>Передача третьим лицам</strong><br />
           Мы не продаём и не передаём ваши данные третьим лицам. Email передаётся только
           сервису Resend для технической отправки письма.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Хранение данных</strong>
-          <br />
+          <strong style={{ color: "var(--text-primary)" }}>Хранение данных</strong><br />
           Данные хранятся на защищённых серверах. Вы можете запросить удаление своих данных,
-          написав в @clicps_bot.
+          написав в @keycappbot.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Cookies</strong>
-          <br />
+          <strong style={{ color: "var(--text-primary)" }}>Cookies</strong><br />
           Сайт не использует cookies для отслеживания или рекламы.
         </p>
       </div>
@@ -230,38 +206,29 @@ const MODAL_CONTENT: Record<ModalKey, ModalData> = {
     title: "Публичная оферта",
     content: (
       <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.8 }}>
-        <p>
-          Настоящая публичная оферта определяет условия продажи цифровых товаров через сайт
-          KeyShop.
-        </p>
+        <p>Настоящая публичная оферта определяет условия продажи цифровых товаров через сайт Keycapp.</p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Предмет оферты</strong>
-          <br />
-          Продавец (KeyShop) предоставляет Покупателю цифровые ключи активации для иностранных
+          <strong style={{ color: "var(--text-primary)" }}>Предмет оферты</strong><br />
+          Продавец (Keycapp) предоставляет Покупателю цифровые ключи активации для иностранных
           сервисов. Ключи являются цифровым товаром и доставляются в электронном виде.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Акцепт оферты</strong>
-          <br />
-          Оформление заказа на сайте означает полное и безоговорочное принятие условий
-          настоящей оферты.
+          <strong style={{ color: "var(--text-primary)" }}>Акцепт оферты</strong><br />
+          Оформление заказа на сайте означает полное и безоговорочное принятие условий настоящей оферты.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Цена и оплата</strong>
-          <br />
+          <strong style={{ color: "var(--text-primary)" }}>Цена и оплата</strong><br />
           Цена товара указана на сайте в рублях и формируется на основе актуального курса ЦБ РФ
           с учётом наценки посредника. Оплата производится в момент оформления заказа.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Доставка</strong>
-          <br />
+          <strong style={{ color: "var(--text-primary)" }}>Доставка</strong><br />
           Цифровой ключ доставляется на указанный email немедленно после подтверждения оплаты.
         </p>
         <p style={{ marginTop: 12 }}>
-          <strong style={{ color: "var(--text-primary)" }}>Гарантии</strong>
-          <br />
+          <strong style={{ color: "var(--text-primary)" }}>Гарантии</strong><br />
           Продавец гарантирует работоспособность ключа на момент продажи. В случае
-          неработоспособности ключ заменяется бесплатно при обращении в @clicps_bot.
+          неработоспособности ключ заменяется бесплатно при обращении в @keycappbot.
         </p>
       </div>
     ),
@@ -281,7 +248,7 @@ export default function Footer() {
       <footer>
         <div style={footerStyles.grid}>
           <div>
-            <p style={footerStyles.title}>KeyShop</p>
+            <p style={footerStyles.title}>Keycapp</p>
             <p style={footerStyles.item} onClick={() => open("about")}>О магазине</p>
             <p style={footerStyles.item} onClick={() => open("howItWorks")}>Как это работает</p>
             <p style={{ ...footerStyles.item, ...footerStyles.itemDisabled }}>Отзывы</p>
@@ -290,16 +257,10 @@ export default function Footer() {
           <div style={{ textAlign: "center" }}>
             <p style={footerStyles.title}>Помощь</p>
             <p style={footerStyles.item} onClick={() => open("faq")}>FAQ</p>
-            <p
-              style={footerStyles.item}
-              onClick={() => window.open("https://t.me/clicps_bot", "_blank")}
-            >
+            <p style={footerStyles.item} onClick={() => window.open("https://t.me/keycappbot", "_blank")}>
               Поддержка
             </p>
-            <p
-              style={footerStyles.item}
-              onClick={() => window.open("https://t.me/clicps_bot", "_blank")}
-            >
+            <p style={footerStyles.item} onClick={() => window.open("https://t.me/keycappbot", "_blank")}>
               Telegram
             </p>
           </div>
@@ -313,7 +274,7 @@ export default function Footer() {
         </div>
 
         <div style={footerStyles.bottom}>
-          <span style={footerStyles.copy}>© 2025 KeyShop</span>
+          <span style={footerStyles.copy}>© 2026 Keycapp</span>
           <span style={footerStyles.copy}>Все права защищены</span>
         </div>
       </footer>
@@ -344,10 +305,11 @@ const footerStyles: Record<string, React.CSSProperties> = {
     transition: "background 0.3s, border-color 0.3s",
   },
   title: {
-    fontSize: 12,
-    letterSpacing: "0.09em",
+    fontSize: 16,          // было 12 — увеличили
+    fontWeight: 700,       // добавили жирность
+    letterSpacing: "0.05em",
     textTransform: "uppercase",
-    color: "var(--text-muted)",
+    color: "var(--text-primary)",  // было muted — теперь ярче
     marginBottom: 14,
     transition: "color 0.3s",
   },
@@ -377,27 +339,27 @@ const footerStyles: Record<string, React.CSSProperties> = {
     transition: "color 0.3s",
   },
   overlay: {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(0,0,0,0.85)",  // было 0.6
-  zIndex: 1000,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: 24,
-},
-modal: {
-  background: "var(--bg-main)",  // было var(--bg-card) — теперь основной фон, глухой
-  borderRadius: 18,
-  width: "100%",
-  maxWidth: 680,        // было 560
-  maxHeight: "85vh",   // было 80vh
-  display: "flex",
-  flexDirection: "column",
-  border: "1px solid var(--border)",
-  overflow: "hidden",
-  boxShadow: "0 24px 60px rgba(0,0,0,0.6)",  // добавили тень
-},
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.85)",
+    zIndex: 1000,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  modal: {
+    background: "var(--bg-main)",
+    borderRadius: 18,
+    width: "100%",
+    maxWidth: 680,
+    maxHeight: "85vh",
+    display: "flex",
+    flexDirection: "column",
+    border: "1px solid var(--border)",
+    overflow: "hidden",
+    boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+  },
   modalHeader: {
     display: "flex",
     justifyContent: "space-between",

@@ -377,26 +377,27 @@ const footerStyles: Record<string, React.CSSProperties> = {
     transition: "color 0.3s",
   },
   overlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.6)",
-    zIndex: 1000,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-  },
-  modal: {
-    background: "var(--bg-card)",
-    borderRadius: 18,
-    width: "100%",
-    maxWidth: 560,
-    maxHeight: "80vh",
-    display: "flex",
-    flexDirection: "column",
-    border: "1px solid var(--border)",
-    overflow: "hidden",
-  },
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.85)",  // было 0.6
+  zIndex: 1000,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 24,
+},
+modal: {
+  background: "var(--bg-main)",  // было var(--bg-card) — теперь основной фон, глухой
+  borderRadius: 18,
+  width: "100%",
+  maxWidth: 680,        // было 560
+  maxHeight: "85vh",   // было 80vh
+  display: "flex",
+  flexDirection: "column",
+  border: "1px solid var(--border)",
+  overflow: "hidden",
+  boxShadow: "0 24px 60px rgba(0,0,0,0.6)",  // добавили тень
+},
   modalHeader: {
     display: "flex",
     justifyContent: "space-between",

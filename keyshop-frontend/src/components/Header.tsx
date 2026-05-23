@@ -6,10 +6,12 @@ interface Platform {
   name: string;
 }
 
-const platformConfig: Record<
-  string,
-  { gradient: string; svg: React.ReactElement }
-> = {
+interface PlatformConfig {
+  gradient: string;
+  svg: React.ReactElement;
+}
+
+const platformConfig: Record<string, PlatformConfig> = {
   playstation: {
     gradient: "linear-gradient(135deg, #003087 0%, #0070cc 100%)",
     svg: (
@@ -65,7 +67,25 @@ export default function Header({
   return (
     <>
       <header style={styles.header}>
-        <span style={styles.logo}>KeyShop</span>
+        <div style={styles.logoWrap}>
+          <div style={styles.logoIcon}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"
+                stroke="#F57C20"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <div style={styles.logoTextWrap}>
+            <span style={styles.logoText}>
+              Key<span style={styles.logoAccent}>capp</span>
+            </span>
+            <span style={styles.logoSub}>digital keys store</span>
+          </div>
+        </div>
 
         <div
           onClick={onToggleTheme}
@@ -104,8 +124,7 @@ export default function Header({
                 onClick={() => onPlatformChange(p.slug)}
                 style={{
                   ...styles.platformBtn,
-                  background:
-                    config?.gradient ?? "linear-gradient(135deg, #666, #999)",
+                  background: config?.gradient ?? "linear-gradient(135deg, #666, #999)",
                   opacity: isActive ? 1 : 0.45,
                   transform: isActive ? "scale(1.12)" : "scale(1)",
                   boxShadow: isActive
@@ -129,7 +148,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "13px 28px",
+    padding: "14px 28px",
     background: "var(--bg-header)",
     borderBottom: "0.5px solid var(--border-header)",
     position: "sticky",
@@ -137,12 +156,43 @@ const styles: Record<string, React.CSSProperties> = {
     zIndex: 10,
     transition: "background 0.3s, border-color 0.3s",
   },
-  logo: {
-    fontSize: 13,
-    fontWeight: 700,
-    letterSpacing: "0.09em",
+  logoWrap: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  logoIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    background: "rgba(245, 124, 32, 0.12)",
+    border: "1px solid rgba(245, 124, 32, 0.25)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  logoTextWrap: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 1,
+  },
+  logoText: {
+    fontSize: 22,
+    fontWeight: 800,
+    letterSpacing: "-0.03em",
+    color: "var(--text-primary)",
+    lineHeight: 1,
+    transition: "color 0.3s",
+  },
+  logoAccent: {
+    color: "#F57C20",
+  },
+  logoSub: {
+    fontSize: 10,
+    letterSpacing: "0.1em",
     textTransform: "uppercase",
-    color: "var(--text-logo)",
+    color: "var(--text-muted)",
     transition: "color 0.3s",
   },
   toggle: {
@@ -165,8 +215,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition:
-      "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s",
+    transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s",
   },
   platformsWrap: {
     background: "var(--bg-header)",

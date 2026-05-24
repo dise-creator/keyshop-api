@@ -123,10 +123,14 @@ export const initBot = () => {
 
   bot.onText(/\/platform ([\w-]+) (on|off)/, async (msg: Message, match: RegExpExecArray | null) => {
     if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
-    const slug = match![1];
+    const slug = match![1].trim();
     const isActive = match![2] === 'on';
-    const platform = await prisma.platform.update({ where: { slug }, data: { isActive } });
-    bot.sendMessage(msg.chat.id, `${isActive ? '✅' : '❌'} Платформа ${platform.name} ${isActive ? 'включена' : 'выключена'}`);
+    try {
+      const platform = await prisma.platform.update({ where: { slug }, data: { isActive } });
+      bot.sendMessage(msg.chat.id, `${isActive ? '✅' : '❌'} Платформа ${platform.name} ${isActive ? 'включена' : 'выключена'}`);
+    } catch (err) {
+      bot.sendMessage(msg.chat.id, `❌ Платформа "${slug}" не найдена. Проверь слаг через /platforms`);
+    }
   });
 
   bot.onText(/\/users/, async (msg: Message) => {

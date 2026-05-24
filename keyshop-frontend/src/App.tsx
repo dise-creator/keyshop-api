@@ -85,6 +85,17 @@ export default function App() {
         theme={theme}
         onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
       />
+      <div style={{
+  background: "#F57C20",
+  color: "#fff",
+  textAlign: "center",
+  padding: "10px 24px",
+  fontSize: 14,
+  fontWeight: 600,
+  letterSpacing: "0.02em",
+}}>
+  🚧 Сайт в разработке — скоро заработает полностью. Спасибо за терпение!
+</div>
       <main style={{ maxWidth: 680, margin: "0 auto", padding: "44px 24px", minHeight: "70vh" }}>
         <RegionSelector
           regions={regions}

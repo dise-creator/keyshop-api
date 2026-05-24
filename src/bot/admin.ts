@@ -121,7 +121,7 @@ export const initBot = () => {
     bot.sendMessage(msg.chat.id, `🎮 Платформы:\n\n${text}`);
   });
 
-  bot.onText(/\/platform (\w+) (on|off)/, async (msg: Message, match: RegExpExecArray | null) => {
+  bot.onText(/\/platform ([\w-]+) (on|off)/, async (msg: Message, match: RegExpExecArray | null) => {
     if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
     const slug = match![1];
     const isActive = match![2] === 'on';

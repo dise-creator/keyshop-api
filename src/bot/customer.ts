@@ -5,6 +5,13 @@ let customerBot: TelegramBot;
 
 export const getCustomerBot = () => customerBot;
 
+const ACTIVATION_INSTRUCTIONS: Record<string, string> = {
+  playstation: `📖 Как активировать ключ PS5:\n1. Войди в аккаунт PlayStation нужного региона (Турция или Индия)\n2. Открой PlayStation Store → «Погасить код»\n3. Введи код выше — деньги зачислятся мгновенно\n\n💡 VPN не нужен. Регион аккаунта должен совпадать с регионом ключа.`,
+  steam: `📖 Как активировать ключ Steam:\n1. Открой клиент Steam\n2. Внизу слева → «Добавить игру» → «Активировать через Steam»\n3. Введи код выше — баланс обновится мгновенно\n\n💡 VPN не нужен.`,
+  'ai-services': `📖 Как активировать подписку:\n1. Включи VPN (европейский или американский сервер)\n2. Войди на сайт сервиса и перейди в раздел оплаты\n3. Введи данные карты из письма как обычную карту\n\n💡 VPN нужен только для активации. После — можно отключить.`,
+  other: `📖 Как активировать подписку:\n1. Включи VPN (европейский или американский сервер)\n2. Войди на сайт сервиса и перейди в раздел оплаты\n3. Введи данные карты из письма как обычную карту\n\n💡 После активации VPN можно отключить.`,
+};
+
 export const initCustomerBot = () => {
   const token = process.env.CUSTOMER_BOT_TOKEN!;
   customerBot = new TelegramBot(token, { polling: true });
@@ -166,14 +173,16 @@ export const sendKeyToTelegram = async (
   telegramId: bigint,
   keyCode: string,
   platformName: string,
+  platformSlug: string,
   amount: string,
   amountRub: number,
   orderId: string
 ) => {
   if (!customerBot) return;
   try {
+    const instructions = ACTIVATION_INSTRUCTIONS[platformSlug] ?? ACTIVATION_INSTRUCTIONS['other'];
     await customerBot.sendMessage(Number(telegramId),
-      `✅ Твой заказ выполнен!\n\n🎮 ${platformName} ${amount}\n💰 ${amountRub.toLocaleString('ru-RU')} ₽\n\n🔑 Ключ активации:\n${keyCode}`
+      `✅ Твой заказ выполнен!\n\n🎮 ${platformName} ${amount}\n💰 ${amountRub.toLocaleString('ru-RU')} ₽\n\n🔑 Ключ активации:\n${keyCode}\n\n${instructions}`
     );
     setTimeout(async () => {
       try {
@@ -204,13 +213,15 @@ export const notifyKeyReady = async (
   telegramId: bigint,
   keyCode: string,
   platformName: string,
+  platformSlug: string,
   amount: string,
   orderId: string
 ) => {
   if (!customerBot) return;
   try {
+    const instructions = ACTIVATION_INSTRUCTIONS[platformSlug] ?? ACTIVATION_INSTRUCTIONS['other'];
     await customerBot.sendMessage(Number(telegramId),
-      `🎉 Ключ готов!\n\n🎮 ${platformName} ${amount}\n\n🔑 Ключ активации:\n${keyCode}`
+      `🎉 Ключ готов!\n\n🎮 ${platformName} ${amount}\n\n🔑 Ключ активации:\n${keyCode}\n\n${instructions}`
     );
     setTimeout(async () => {
       try {

@@ -202,13 +202,21 @@ export const initBot = () => {
 
           if (pendingOrder.user.telegramId) {
             const { notifyKeyReady } = await import('./customer');
-            await notifyKeyReady(
-              pendingOrder.user.telegramId,
-              code,
-              pendingOrder.product.platform.name,
-              `${pendingOrder.product.amount} ${pendingOrder.product.region.currency}`,
-              pendingOrder.id
-            );
+          await notifyKeyReady(
+  pendingOrder.user.telegramId,
+  code,
+  pendingOrder.product.platform.name,
+  pendingOrder.product.platform.slug,  // 👈 добавили
+  `${pendingOrder.product.amount} ${pendingOrder.product.region.currency}`,
+  pendingOrder.id
+);await notifyKeyReady(
+  pendingOrder.user.telegramId,
+  code,
+  pendingOrder.product.platform.name,
+  pendingOrder.product.platform.slug,  // 👈 добавили
+  `${pendingOrder.product.amount} ${pendingOrder.product.region.currency}`,
+  pendingOrder.id
+);
           }
         }
       }

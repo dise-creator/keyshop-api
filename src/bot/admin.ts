@@ -5,7 +5,6 @@ let bot: TelegramBot;
 
 export const getAdminBot = () => bot;
 
-// Уведомить админов о новом заказе
 export const notifyAdminNewOrder = async (
   email: string,
   platformName: string,
@@ -15,28 +14,23 @@ export const notifyAdminNewOrder = async (
 ) => {
   if (!bot) return;
   const adminIds = (process.env.ADMIN_TELEGRAM_IDS || '').split(',').map(id => parseInt(id.trim())).filter(Boolean);
-
-  const text = `🛒 *Новый заказ!*\n\n👤 ${email}\n🎮 ${platformName} ${amount}\n💰 ${amountRub.toLocaleString('ru-RU')} ₽\n${hasKey ? '✅ Ключ выдан автоматически' : '⏳ Ключей нет — нужно добавить!'}`;
-
+  const text = `🛒 Новый заказ!\n\n👤 ${email}\n🎮 ${platformName} ${amount}\n💰 ${amountRub.toLocaleString('ru-RU')} ₽\n${hasKey ? '✅ Ключ выдан автоматически' : '⏳ Ключей нет — нужно добавить!'}`;
   for (const id of adminIds) {
     try {
-      await bot.sendMessage(id, text, { parse_mode: 'Markdown' });
+      await bot.sendMessage(id, text);
     } catch (err) {
       console.error('Ошибка уведомления админа:', err);
     }
   }
 };
 
-// Уведомить когда ключей мало
 export const notifyLowStock = async (platformName: string, amount: string, currency: string, remaining: number) => {
   if (!bot) return;
   const adminIds = (process.env.ADMIN_TELEGRAM_IDS || '').split(',').map(id => parseInt(id.trim())).filter(Boolean);
-
   for (const id of adminIds) {
     try {
       await bot.sendMessage(id,
-        `⚠️ *Мало ключей!*\n\n🎮 ${platformName} ${amount} ${currency}\n📦 Осталось: *${remaining}* шт.\n\nДобавь ключи командой /addkey`,
-        { parse_mode: 'Markdown' }
+        `⚠️ Мало ключей!\n\n🎮 ${platformName} ${amount} ${currency}\n📦 Осталось: ${remaining} шт.\n\nДобавь ключи командой /addkey`
       );
     } catch (err) {
       console.error('Ошибка уведомления о запасах:', err);
@@ -71,6 +65,7 @@ export const initBot = () => {
 
 🔑 Ключи
 /stock — остатки по всем продуктам
+/products — все продукты с ID
 /addkey <productId> <код> — добавить ключ
 /keys <productId> — ключи конкретного продукта
 
@@ -150,22 +145,18 @@ export const initBot = () => {
     bot.sendMessage(msg.chat.id, `🚫 Пользователь ${userId.slice(0, 8)} заблокирован`);
   });
 
-  // /stock — остатки по всем продуктам
   bot.onText(/\/stock/, async (msg: Message) => {
     if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
-
     const products = await prisma.product.findMany({
       include: { platform: true, region: true },
       orderBy: [{ platformId: 'asc' }]
     });
-
     const lines = await Promise.all(products.map(async (p) => {
       const free = await prisma.key.count({ where: { productId: p.id, isUsed: false } });
       const emoji = free === 0 ? '🔴' : free <= 3 ? '🟡' : '🟢';
-      return `${emoji} ${p.platform.name} ${p.region.flag} ${p.amount} ${p.region.currency} — *${free}* шт.`;
+      return `${emoji} ${p.platform.name} ${p.region.flag} ${p.amount} ${p.region.currency} — ${free} шт.`;
     }));
-
-    bot.sendMessage(msg.chat.id, `📦 *Остатки ключей:*\n\n${lines.join('\n')}\n\n🔴 нет | 🟡 мало (≤3) | 🟢 ок`, { parse_mode: 'Markdown' });
+    bot.sendMessage(msg.chat.id, `📦 Остатки ключей:\n\n${lines.join('\n')}\n\n🔴 нет | 🟡 мало (≤3) | 🟢 ок`);
   });
 
   bot.onText(/\/addkey (\S+) (\S+)/, async (msg: Message, match: RegExpExecArray | null) => {
@@ -187,7 +178,6 @@ export const initBot = () => {
         `✅ Ключ добавлен!\n\n🎮 ${product.platform.name} ${product.region.flag} ${product.amount} ${product.region.currency}\n🔑 ${code}\n📦 Свободных ключей: ${total}`
       );
 
-      // Проверяем pending заказы — может кто-то ждёт
       const pendingOrder = await prisma.order.findFirst({
         where: { productId, status: 'pending' },
         orderBy: { createdAt: 'asc' },
@@ -195,32 +185,35 @@ export const initBot = () => {
       });
 
       if (pendingOrder) {
-        await prisma.key.update({
-          where: { id: (await prisma.key.findFirst({ where: { productId, isUsed: false } }))!.id },
-          data: { isUsed: true, usedInOrderId: pendingOrder.id }
-        });
-        await prisma.order.update({
-          where: { id: pendingOrder.id },
-          data: { status: 'completed' }
-        });
+        const keyToAssign = await prisma.key.findFirst({ where: { productId, isUsed: false } });
+        if (keyToAssign) {
+          await prisma.key.update({
+            where: { id: keyToAssign.id },
+            data: { isUsed: true, usedInOrderId: pendingOrder.id }
+          });
+          await prisma.order.update({
+            where: { id: pendingOrder.id },
+            data: { status: 'completed' }
+          });
 
-        bot.sendMessage(msg.chat.id,
-          `🎉 Ключ автоматически выдан покупателю!\n👤 ${pendingOrder.user.email}`
-        );
-
-        // Уведомляем покупателя если есть telegramId
-        if (pendingOrder.user.telegramId) {
-          const { notifyKeyReady } = await import('./customer');
-          await notifyKeyReady(
-            pendingOrder.user.telegramId,
-            code,
-            pendingOrder.product.platform.name,
-            `${pendingOrder.product.amount} ${pendingOrder.product.region.currency}`,
-            pendingOrder.id
+          bot.sendMessage(msg.chat.id,
+            `🎉 Ключ автоматически выдан покупателю!\n👤 ${pendingOrder.user.email}`
           );
+
+          if (pendingOrder.user.telegramId) {
+            const { notifyKeyReady } = await import('./customer');
+            await notifyKeyReady(
+              pendingOrder.user.telegramId,
+              code,
+              pendingOrder.product.platform.name,
+              `${pendingOrder.product.amount} ${pendingOrder.product.region.currency}`,
+              pendingOrder.id
+            );
+          }
         }
       }
     } catch (err) {
+      console.error('Ошибка addkey:', err);
       bot.sendMessage(msg.chat.id, '❌ Ошибка при добавлении ключа');
     }
   });
@@ -228,17 +221,14 @@ export const initBot = () => {
   bot.onText(/\/keys (\S+)/, async (msg: Message, match: RegExpExecArray | null) => {
     if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
     const productId = match![1].trim();
-
     try {
       const product = await prisma.product.findUnique({
         where: { id: productId },
         include: { platform: true, region: true }
       });
       if (!product) return bot.sendMessage(msg.chat.id, '❌ Продукт не найден');
-
       const free = await prisma.key.count({ where: { productId, isUsed: false } });
       const used = await prisma.key.count({ where: { productId, isUsed: true } });
-
       bot.sendMessage(msg.chat.id,
         `🔑 Ключи: ${product.platform.name} ${product.region.flag} ${product.amount} ${product.region.currency}\n\n✅ Свободных: ${free}\n❌ Использованных: ${used}`
       );
@@ -248,37 +238,29 @@ export const initBot = () => {
   });
 
   bot.onText(/\/products/, async (msg: Message) => {
-  if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
-
-  const products = await prisma.product.findMany({
-    include: { platform: true, region: true },
-    orderBy: [{ platformId: 'asc' }]
+    if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
+    const products = await prisma.product.findMany({
+      include: { platform: true, region: true },
+      orderBy: [{ platformId: 'asc' }]
+    });
+    const lines = products.map(p =>
+      `${p.platform.name} ${p.region.flag} ${p.amount} ${p.region.currency}\n${p.id}`
+    ).join('\n\n');
+    bot.sendMessage(msg.chat.id, `📦 Продукты:\n\n${lines}`);
   });
 
-  const lines = products.map(p =>
-    `${p.platform.name} ${p.region.flag} ${p.amount} ${p.region.currency}\n\`${p.id}\``
-  ).join('\n\n');
-
-  bot.sendMessage(msg.chat.id, `📦 *Продукты:*\n\n${lines}`, { parse_mode: 'Markdown' });
-});
-
-  // /reviews — последние отзывы
   bot.onText(/\/reviews/, async (msg: Message) => {
     if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
-
     const reviews = await prisma.review.findMany({
       take: 10,
       orderBy: { createdAt: 'desc' },
       include: { user: true, order: { include: { product: { include: { platform: true, region: true } } } } }
     });
-
     if (reviews.length === 0) return bot.sendMessage(msg.chat.id, 'Отзывов пока нет');
-
     const text = reviews.map(r =>
       `${'⭐'.repeat(r.rating)} ${r.rating}/5\n👤 ${r.user.email}\n🎮 ${r.order.product.platform.name} ${r.order.product.region.flag}\n${r.comment ? `💬 ${r.comment}` : ''}`.trim()
     ).join('\n\n');
-
-    bot.sendMessage(msg.chat.id, `⭐ *Последние отзывы:*\n\n${text}`, { parse_mode: 'Markdown' });
+    bot.sendMessage(msg.chat.id, `⭐ Последние отзывы:\n\n${text}`);
   });
 
   console.log('🤖 Admin бот запущен');

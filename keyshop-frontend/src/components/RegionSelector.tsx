@@ -27,7 +27,7 @@ export default function RegionSelector({ regions, activeRegion, onRegionChange }
               ...(activeRegion === r.id ? styles.chipActive : {}),
             }}
           >
-            <span>{r.flag}</span>
+            <span style={{ fontSize: 22 }}>{r.flag}</span>
             {r.name}
           </button>
         ))}
@@ -47,12 +47,12 @@ const styles: Record<string, React.CSSProperties> = {
     transition: "color 0.3s",
   },
   chips: { display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" },
- chip: {
+  chip: {
     display: "flex",
     alignItems: "center",
     gap: 8,
-    fontSize: 17,        // было 15
-    padding: "14px 32px", // было 10px 22px
+    fontSize: 17,
+    padding: "14px 32px",
     borderRadius: 100,
     border: "0.5px solid var(--border-chip)",
     background: "var(--bg-chip)",

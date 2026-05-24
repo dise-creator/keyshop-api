@@ -47,12 +47,12 @@ const styles: Record<string, React.CSSProperties> = {
     transition: "color 0.3s",
   },
   chips: { display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" },
-  chip: {
+ chip: {
     display: "flex",
     alignItems: "center",
-    gap: 7,
-    fontSize: 15,
-    padding: "10px 22px",
+    gap: 8,
+    fontSize: 17,        // было 15
+    padding: "14px 32px", // было 10px 22px
     borderRadius: 100,
     border: "0.5px solid var(--border-chip)",
     background: "var(--bg-chip)",
